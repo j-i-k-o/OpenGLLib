@@ -267,7 +267,7 @@ namespace jikoLib
 			struct GLAllocTraits{};
 
 		// note:
-		// these traits must have two function object named "allocfunc" and "deallocfunc".
+		// these traits must have two function objects named "allocfunc" and "deallocfunc".
 		// the return type of allocfunc must be GLuint.
 
 		template<>

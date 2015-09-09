@@ -1044,7 +1044,7 @@ namespace jikoLib{
 					{
 						if(32 <= TexUnitNum)
 						{
-							std::cerr << "TextureUnit must be between 0 to 32. --set TextureUnit 0" << std::endl;
+							std::cerr << "TextureUnit must be between 0 to 32. -- set TextureUnit 0" << std::endl;
 							TexUnitNum = 0;
 						}
 						glActiveTexture(GL_TEXTURE0 + TexUnitNum);
@@ -1477,7 +1477,7 @@ namespace jikoLib{
 			};
 
 
-		//some alias 
+		//some aliases
 		using VShader = Shader<VertexShader>;
 		using FShader = Shader<FragmentShader>;
 		using ShaderProgram = ShaderProg<>;
