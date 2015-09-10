@@ -174,13 +174,6 @@ namespace jikoLib{
 							this->connectAttrib(prog, mesh.getTexcrd(), mesh.getVArray(), texcrd_attr);
 					}
 
-				inline void connectAttrib(AssimpModel &model, const std::string &vertex_attr, const std::string &normal_attr = "", const std::string &texcrd_attr = "")
-				{
-					//set vertex normal texcrd variable to AssimpModel
-					model.setVertexNormalTexcrd(vertex_attr, normal_attr, texcrd_attr);
-				}
-
-
 				inline void viewport(GLint x, GLint y, GLsizei width, GLsizei height)
 				{
 					glViewport(x,y,width,height);
@@ -334,18 +327,6 @@ namespace jikoLib{
 						else
 							draw<RenderMode>(obj.getVArray(), program, obj.getVertex(), tex_array);
 					}
-
-				
-				
-				static void recursive_render(const aiScene *sc, const aiNode* nd, const AssimpModel& model)
-				{
-				
-				}
-
-				inline void draw(const AssimpModel& model, const std::string& model_uniform, const glm::mat4& model_mat)
-				{
-					recursive_render(model.getScene(), model.getScene()->mRootNode, model);
-				}
 				
 		};
 	} 
