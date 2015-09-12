@@ -867,6 +867,39 @@ namespace jikoLib{
 					}
 
 			};
+
+			//Assimp Model
+			class AssimpModel
+			{
+				AssimpModel(const AssimpModel&) = delete;
+				AssimpModel(AssimpModel&&) = delete;
+
+				private:
+					Assimp::Importer importer;
+					const aiScene* scene;
+
+					AssimpModel& operator=(const AssimpModel&);
+					AssimpModel& operator=(AssimpModel&&);
+				public:
+					AssimpModel(const std::string &filename)
+						:scene(importer.ReadFile(
+								filename,
+								aiProcess_CalcTangentSpace			|
+								aiProcess_Triangulate				|
+								aiProcess_JoinIdenticalVertices	|
+								aiProcess_SortByPType))
+					{
+						if(!scene)
+						{
+							//file open error
+							std::cerr << "Assimp Error (Filename: " << filename << ")" << std::endl;
+							std::cerr << importer.GetErrorString() << std::endl;
+							return;
+						}
+
+						//DoImportScene
+					}
+			};
 		}
 	}
 }
