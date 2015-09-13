@@ -229,6 +229,24 @@ namespace jikoLib
 		}
 
 
+		/**
+		 * Simple C++ Node Class
+		 *
+		 */
+
+		template <typename T>
+			struct Node
+			{
+				static_assert(!std::is_pointer<T>::value, "T must not be pointer.");
+				T data;
+				std::vector<Node> child;
+				Node (T newVal)
+				{
+					data = newVal;
+				}
+			};
+
+
 
 		/**
 		 * GLObject Initialize and Finalize destruct

@@ -96,6 +96,7 @@ int main(int argc, char* argv[])
 	Texture<Texture2D> texture;
 	texture.texImage2D("texture.jpg");
 
+
 	Mesh3D cube;
 	MeshSample::Sphere sphereHelper(1.0, 30, 30);
 	MeshSample::Cube cubeHelper(1.0);
@@ -106,6 +107,7 @@ int main(int argc, char* argv[])
 	camera.setDrct(glm::vec3(0.0f, 0.0f, 0.0f));
 	camera.setUp(glm::vec3(0.0f, 1.0f, 0.0f));
 	camera.setFar(10.0f);
+
 
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
@@ -133,6 +135,8 @@ int main(int argc, char* argv[])
 	program.setUniformXt("attenuation.quadratic", 0.075f);
 
 	program.setUniformXt("textureobj", 0);
+
+	AssimpModel a("");
 
 	int poyo[] =
 	{
