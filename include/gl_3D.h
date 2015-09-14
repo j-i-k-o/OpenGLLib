@@ -886,7 +886,13 @@ namespace jikoLib{
 
 
 			//mesh array
-			Node<std::tuple<Mesh3D>> nodes;
+			//Node<std::tuple<Mesh3D>> node;
+
+			//configure nodes
+			void buildNode(aiNode* node)
+			{
+
+			}
 			public:
 			AssimpModel(const std::string &filename)
 				:scene(importer.ReadFile(
@@ -906,7 +912,6 @@ namespace jikoLib{
 				}
 
 				//first, we import imformation of meshes
-				// the variables pos,rot, and scale are ignored now.
 			}
 		};
 	}
