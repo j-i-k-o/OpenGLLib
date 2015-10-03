@@ -1,5 +1,5 @@
 R"(
-#version 120
+#version 400 core
 
 attribute vec3 norm;
 attribute vec3 vertex;
