@@ -226,8 +226,32 @@ namespace jikoLib{
 						fbo.unbind();
 					}
 
+				inline void enable(GLenum cap)
+				{
+					glEnable(cap);
+				}
 
 
+				template<typename value_type>
+					inline void patchParameter(GLenum pname, value_type value)
+					{
+						static_assert(is_exist<value_type, GLint, GLfloat*>::value, "value_type must be GLint or GLfloat*");
+						if(std::is_same<value_type, GLint>::value)
+						{
+							glPatchParameteri(pname, value);
+							CHECK_GL_ERROR;
+						}
+						if(std::is_same<value_type, GLfloat>::value)
+						{
+							glPatchParameterfv(pname, value);
+							CHECK_GL_ERROR;
+						}
+					}
+
+				inline void blendFunc(GLenum sfactor, GLenum dfactor)
+				{
+					glBlendFunc(sfactor, dfactor);
+				}
 
 
 				//draw

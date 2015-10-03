@@ -1,12 +1,12 @@
 R"(
 #version 400 core
-varying vec3 Normal;
-varying vec3 Vertex;
-varying vec2 Texcrd;
+in vec3 Normal;
+in vec3 Vertex;
+in vec2 Texcrd;
 
-varying mat4 Model;
-varying mat4 View;
-varying mat4 Projection;
+in mat4 Model;
+in mat4 View;
+in mat4 Projection;
 
 struct Light{
 	vec4 ambient;
@@ -35,6 +35,8 @@ uniform Attenuation attenuation;
 
 uniform sampler2D textureobj;
 
+out vec4 FragColor;
+
 void main()
 {
 	//ambient
@@ -54,6 +56,6 @@ void main()
 	}
 	vec4 specular = specularLighting*light.specular*material.specular;
 	vec4 texcolor = texture2D(textureobj, Texcrd);
-	gl_FragColor = (ambient + diffuse + specular)*(1.0/(attenuation.constant+attenuation.linear*length(L-P)+attenuation.quadratic*length(L-P)*length(L-P)));
+	FragColor = (ambient + diffuse + specular)*(1.0/(attenuation.constant+attenuation.linear*length(L-P)+attenuation.quadratic*length(L-P)*length(L-P)));
 }
 )"

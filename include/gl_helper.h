@@ -480,11 +480,17 @@ namespace jikoLib
 		{
 			constexpr static GLenum SHADER_TYPE = GL_FRAGMENT_SHADER;
 		};
-
-		//Geometry Shader (ARB extension)
 		struct GeometryShader
 		{
-			constexpr static GLenum SHADER_TYPE = GL_GEOMETRY_SHADER_ARB;
+			constexpr static GLenum SHADER_TYPE = GL_GEOMETRY_SHADER;
+		};
+		struct TessControlShader
+		{
+			constexpr static GLenum SHADER_TYPE = GL_TESS_CONTROL_SHADER;
+		};
+		struct TessEvalShader
+		{
+			constexpr static GLenum SHADER_TYPE = GL_TESS_EVALUATION_SHADER;
 		};
 
 		/**

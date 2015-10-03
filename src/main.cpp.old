@@ -41,13 +41,10 @@ int threadfunction(void* data)
 }
 
 const std::string vshader_source = 
-#include "geom.vert"
-;
-const std::string gshader_source = 
-#include "geom.geom"
+#include "shader.vert"
 ;
 const std::string fshader_source = 
-#include "geom.frag"
+#include "shader.frag"
 ;
 
 
@@ -70,7 +67,7 @@ int main(int argc, char* argv[])
 	//SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
 	//SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
 	//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); 
+	//SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); 
 
 
 	SDL_Rect window_rect;
@@ -90,7 +87,7 @@ int main(int argc, char* argv[])
 	context = SDL_GL_CreateContext(window);
 
 	/***************************************
-	 * 
+	 * until here
 	 * ************************************/
 
 	obj << Begin();
@@ -99,19 +96,22 @@ int main(int argc, char* argv[])
 
 	SDL_GL_MakeCurrent(window, context);
 
-	//load shaders
 	VShader vshader;
-	GShader gshader;
 	FShader fshader;
 
 	ShaderProgram program;
+
 	vshader << vshader_source;
-	gshader << gshader_source;
 	fshader << fshader_source;
 
-	program << vshader << gshader << fshader << link_these();
+	program << vshader << fshader << link_these();
+
+	Texture<Texture2D> texture;
+	texture.texImage2D("texture.jpg");
+
 
 	Mesh3D cube;
+	MeshSample::Sphere sphereHelper(1.0, 30, 30);
 	MeshSample::Cube cubeHelper(1.0);
 	cube.copyData(cubeHelper.getVertex(), cubeHelper.getNormal(), cubeHelper.getTexcrd(), cubeHelper.getNumVertex());
 
@@ -121,14 +121,18 @@ int main(int argc, char* argv[])
 	camera.setUp(glm::vec3(0.0f, 1.0f, 0.0f));
 	camera.setFar(10.0f);
 
-	//window size
+
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
+	camera.setAspect(width, height);
+
 	obj.connectAttrib(program, cube.getNormal(), cube.getVArray(), "norm");
 	obj.connectAttrib(program, cube.getVertex(), cube.getVArray(), "vertex");
 	obj.connectAttrib(program, cube.getTexcrd(), cube.getVArray(), "texcrd");
 
 	program.setUniformMatrixXtv("model", glm::value_ptr(cube.getModelMatrix()), 1, 4);
-	//program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
-	//program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
+	program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
+	program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
 
 	program.setUniformXt("light.ambient", 0.25f, 0.25f, 0.25f, 1.0f);
 	program.setUniformXt("light.diffuse", 1.0f, 1.0f, 1.0f, 1.0f);
@@ -140,50 +144,53 @@ int main(int argc, char* argv[])
 	program.setUniformXt("material.shininess", 3.0f);
 
 	program.setUniformXt("attenuation.constant", 0.0f);
-	program.setUniformXt("attenuation.linear", 0.5f);
+	program.setUniformXt("attenuation.linear", 0.0f);
 	program.setUniformXt("attenuation.quadratic", 0.075f);
 
 	program.setUniformXt("textureobj", 0);
 
-	//draw
-	volatile bool quit = false;
-	SDL_Event e;
-	while(!quit)
+	AssimpModel a("");
+
+	int poyo[] =
 	{
-		while(SDL_PollEvent(&e) != 0)
+		2,
+		3,
+		4,
+		5,
+		6
+	};
+
+	bool quit = false;
+	SDL_Event e;
+	//	SDL_WaitThread(threadID, NULL);
+
+	while( !quit )
+	{
+		//Handle events on queue
+		while( SDL_PollEvent( &e ) != 0 )
 		{
-			if(e.type == SDL_QUIT)
+			//User requests quit
+			if( e.type == SDL_QUIT )
+			{
 				quit = true;
+			}
 		}
 		CHECK_GL_ERROR;
-		obj.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
-		obj.clearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		program.setUniformXt("light.position", 0.6f, 0.6f, -0.6f);
-		int width, height;
-		SDL_GetWindowSize(window, &width, &height);
-		camera.setAspect(width, height);
-		program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
-		program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
-		obj.viewport(0, 0, width, height);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		//texture.bind(0);
+		program.setUniformXt("light.position", 0.0f, 1.0f, 0.0f);
 		obj.draw(cube, program);
-		SDL_GL_SwapWindow(window);
+		texture.unbind();
+		SDL_GL_SwapWindow( window );
 	}
 
-
-	
-	/*************************************
-	 * SDL desctuction
-	 * **********************************/
+	//	obj << End();
 
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-
-	/***************************************
-	 * 
-	 * ************************************/
-
 	return 0;
 }

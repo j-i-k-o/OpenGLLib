@@ -1479,6 +1479,9 @@ namespace jikoLib{
 
 		//some aliases
 		using VShader = Shader<VertexShader>;
+		using GShader = Shader<GeometryShader>;
+		using TCShader = Shader<TessControlShader>;
+		using TEShader = Shader<TessEvalShader>;
 		using FShader = Shader<FragmentShader>;
 		using ShaderProgram = ShaderProg<>;
 		using VBO = VertexBuffer<ArrayBuffer, StaticDraw>;
