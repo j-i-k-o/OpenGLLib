@@ -636,12 +636,8 @@ namespace jikoLib{
 							static_assert( (Size_Elem != 0)&&(Dim != 0), "Zero Elem" );
 							static_assert((!std::is_same<TargetType,ElementArrayBuffer>::value)||((std::is_same<TargetType,ElementArrayBuffer>::value)&&(is_exist<T,GLubyte,GLushort,GLuint>::value)),
 									"IBO array type must be GLushort or GLuint or GLubyte");
-							bind();
-							glBufferData(TargetType::BUFFER_TARGET, Size_Elem*Dim*sizeof(T), array, UsageType::BUFFER_USAGE);
-							CHECK_GL_ERROR;
-							DEBUG_OUT("allocate "<< Size_Elem*Dim*sizeof(T) <<" B success! buffer id is " << buffer_id);
-							setSizeElem_Dim_Type<T>(Size_Elem, Dim);
-							unbind();
+
+							copyData(static_cast<T*>(array), Size_Elem, Dim);
 						}
 
 					template<typename T, std::size_t Size_Elem>
@@ -651,16 +647,14 @@ namespace jikoLib{
 							static_assert( (Size_Elem != 0), "Zero Elem" );
 							static_assert((!std::is_same<TargetType,ElementArrayBuffer>::value)||((std::is_same<TargetType,ElementArrayBuffer>::value)&&(is_exist<T,GLubyte,GLushort,GLuint>::value)),
 									"IBO array type must be GLushort or GLuint or GLubyte");
-							bind();
-							glBufferData(TargetType::BUFFER_TARGET, Size_Elem*sizeof(T), array, UsageType::BUFFER_USAGE);
-							CHECK_GL_ERROR;
-							DEBUG_OUT("allocate "<< Size_Elem*sizeof(T) <<" B success! buffer id is " << buffer_id);
-							setSizeElem_Dim_Type<T>(Size_Elem, 1);
-							unbind();
+
+							copyData(static_cast<T*>(array), Size_Elem, 1);
 						}
 
+#if 0
 					VertexBuffer operator+(const VertexBuffer<TargetType, UsageType, Allocator> &obj)
 						//merge buffer data
+						//maybe not be used
 					{
 						if(!(this->isSetArray && obj.isSetArray))
 						{
@@ -918,6 +912,7 @@ namespace jikoLib{
 						return *this;
 
 					}
+#endif
 			};
 
 		//vertexarray

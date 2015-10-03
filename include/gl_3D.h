@@ -874,34 +874,37 @@ namespace jikoLib{
 		//Assimp Model
 		class AssimpModel
 		{
-			AssimpModel(const AssimpModel&) = delete;
-			AssimpModel(AssimpModel&&) = delete;
-
 			private:
-			Assimp::Importer importer;
-			const aiScene* scene;
-
-			AssimpModel& operator=(const AssimpModel&);
-			AssimpModel& operator=(AssimpModel&&);
-
-
-			//mesh array
-			//Node<std::tuple<Mesh3D>> node;
-
-			//configure nodes
-			void buildNode(aiNode* node)
-			{
-
-			}
+				AssimpModel(const AssimpModel&) = delete;
+				AssimpModel(AssimpModel&&) = delete;
+				Assimp::Importer importer;
 			public:
-			AssimpModel(const std::string &filename)
-				:scene(importer.ReadFile(
-							filename,
-							aiProcess_GenNormals					|
-							aiProcess_CalcTangentSpace			|
-							aiProcess_Triangulate				|
-							aiProcess_JoinIdenticalVertices	|
-							aiProcess_SortByPType))
+				const aiScene* scene;
+			private:
+
+				AssimpModel& operator=(const AssimpModel&);
+				AssimpModel& operator=(AssimpModel&&);
+
+
+				//mesh array
+				Node<std::tuple<Mesh3D>> node;
+
+				//configure nodes
+				void buildNode(aiNode* node)
+				{
+					if(node->mNumMeshes > 0)
+					{
+					}
+				}
+			public:
+				AssimpModel(const std::string &filename)
+					:scene(importer.ReadFile(
+								filename,
+								aiProcess_GenSmoothNormals			|
+								aiProcess_CalcTangentSpace			|
+								aiProcess_Triangulate				|
+								aiProcess_JoinIdenticalVertices	|
+								aiProcess_SortByPType))
 			{
 				if(!scene)
 				{

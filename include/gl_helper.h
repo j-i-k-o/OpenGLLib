@@ -241,9 +241,9 @@ namespace jikoLib
 				T data;
 				std::vector<Node> child;
 				Node (T newVal)
-				{
-					data = newVal;
-				}
+					:data(newVal)
+				{}
+				Node(){}
 			};
 
 
