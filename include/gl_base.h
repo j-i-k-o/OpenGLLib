@@ -1116,12 +1116,12 @@ namespace jikoLib{
 					}
 
 
-					template<GLint level = 0, typename int_format = RGBA, typename format = RGBA, typename... Args>
+					template<typename TextureType = GLubyte, GLint level = 0, typename int_format = RGBA, typename format = RGBA, typename... Args>
 						inline void texImage2D(Args&&... args)
 						{
 							static_assert(is_exist<TargetType, Texture2D, TextureCubeMap>::value, "invalid type");
 							bind();
-							TextureTraits<TargetType, level, int_format, format>::texImage2D(std::forward<Args>(args)...);
+							TextureTraits<TargetType, level, int_format, format, TextureType>::texImage2D(std::forward<Args>(args)...);
 							unbind();
 						}
 

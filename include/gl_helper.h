@@ -780,7 +780,7 @@ namespace jikoLib
 		 *
 		 */
 
-		template<typename TargetType, GLint level, typename int_format, typename format>
+		template<typename TargetType, GLint level, typename int_format, typename format, typename TextureType>
 			struct TextureTraits
 			{
 				static void texImage2D(const std::string &path)
@@ -813,14 +813,14 @@ namespace jikoLib
 					//null texture
 					glPixelStorei(GL_UNPACK_ALIGNMENT, format::ALIGN);
 					CHECK_GL_ERROR;
-					TexImage_D<2>::func(TargetType::TEXTURE_TARGET, level, int_format::TEXTURE_COLOR, width, height, 0, format::TEXTURE_COLOR, GL_UNSIGNED_BYTE, static_cast<GLubyte*>(NULL));
+					TexImage_D<2>::func(TargetType::TEXTURE_TARGET, level, int_format::TEXTURE_COLOR, width, height, 0, format::TEXTURE_COLOR, getEnum<TextureType>::value, static_cast<GLvoid*>(NULL));
 					CHECK_GL_ERROR;
 				}
 			};
 
 
-		template<GLint level, typename int_format,typename format>
-			struct TextureTraits<TextureCubeMap, level, int_format, format>
+		template<GLint level, typename int_format,typename format, typename TextureType>
+			struct TextureTraits<TextureCubeMap, level, int_format, format, TextureType>
 			{
 				static void texImage2D(
 						const std::string &neg_x,
