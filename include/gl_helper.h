@@ -638,6 +638,10 @@ namespace jikoLib
 		 *
 		 */
 
+		struct rm_Points
+		{
+			constexpr static GLenum RENDER_MODE = GL_POINTS; 
+		};
 		struct rm_Triangles
 		{
 			constexpr static GLenum RENDER_MODE = GL_TRIANGLES; 
@@ -646,6 +650,10 @@ namespace jikoLib
 		struct rm_LineLoop
 		{
 			constexpr static GLenum RENDER_MODE = GL_LINE_LOOP;
+		};
+		struct rm_Patches
+		{
+			constexpr static GLenum RENDER_MODE = GL_PATCHES;
 		};
 
 
