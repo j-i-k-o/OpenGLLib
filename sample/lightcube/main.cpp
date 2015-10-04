@@ -1,4 +1,4 @@
-#include "../include/gl_all.h"
+#include "../include/gllib/gl_all.h"
 #include <vector>
 #include <SDL2/SDL.h>
 #include <IL/ilu.h>

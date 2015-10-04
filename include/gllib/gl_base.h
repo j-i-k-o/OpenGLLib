@@ -637,7 +637,7 @@ namespace jikoLib{
 							static_assert((!std::is_same<TargetType,ElementArrayBuffer>::value)||((std::is_same<TargetType,ElementArrayBuffer>::value)&&(is_exist<T,GLubyte,GLushort,GLuint>::value)),
 									"IBO array type must be GLushort or GLuint or GLubyte");
 
-							copyData(static_cast<T*>(array), Size_Elem, Dim);
+							copyData(&(array[0][0]), Size_Elem, Dim);
 						}
 
 					template<typename T, std::size_t Size_Elem>
@@ -648,7 +648,7 @@ namespace jikoLib{
 							static_assert((!std::is_same<TargetType,ElementArrayBuffer>::value)||((std::is_same<TargetType,ElementArrayBuffer>::value)&&(is_exist<T,GLubyte,GLushort,GLuint>::value)),
 									"IBO array type must be GLushort or GLuint or GLubyte");
 
-							copyData(static_cast<T*>(array), Size_Elem, 1);
+							copyData(&(array[0]), Size_Elem, 1);
 						}
 
 #if 0
