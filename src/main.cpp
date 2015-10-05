@@ -1,30 +1,3 @@
-/*******************************************************************************
- * jikoLib
- *
- * The MIT License (MIT)
- * 
- * Copyright (c) 2015 j-i-k-o
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- *******************************************************************************/
-
 #include "../include/gllib/gl_all.h"
 #include "../include/animlib/anim_all.h"
 #include <vector>
@@ -42,14 +15,18 @@ int threadfunction(void* data)
 }
 
 const std::string vshader_source = 
-#include "geom.vert"
-;
-const std::string gshader_source = 
-#include "geom.geom"
+#include "shader.vert"
 ;
 const std::string fshader_source = 
-#include "geom.frag"
+#include "shader.frag"
 ;
+const std::string simple_vshader_source = 
+#include "simple2.vert"
+;
+const std::string simple_fshader_source = 
+#include "simple2.frag"
+;
+
 
 
 int main(int argc, char* argv[])
@@ -58,30 +35,21 @@ int main(int argc, char* argv[])
 	using namespace jikoLib::AnimLib;
 
 
-	/*************************************
-	 * SDL initialize
-	 * **********************************/
-
 	if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
 		std::cerr << "Cannot Initialize SDL!: " << SDL_GetError() << std::endl;
 		return -1;
 	}
 
-	//SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-	//SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-	//SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-	//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1); 
 
 
-	SDL_Rect window_rect;
-	if(SDL_GetDisplayBounds(0, &window_rect) != 0)
-	{
-		std::cerr << "SDL_GetDisplayBounds failed" << std::endl;
-		return 0;
-	}
-	SDL_Window* window = SDL_CreateWindow("SDL_Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, window_rect.w, window_rect.h, SDL_WINDOW_OPENGL);
+	//SDL_Window* window = SDL_CreateWindow("SDL_Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 200, 200, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+	SDL_Window* window = SDL_CreateWindow("SDL_Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1200, 800, SDL_WINDOW_OPENGL);
 	if(window == NULL)
 	{
 		std::cerr << "Window could not be created!: " << SDL_GetError() << std::endl;
@@ -91,113 +59,201 @@ int main(int argc, char* argv[])
 
 	context = SDL_GL_CreateContext(window);
 
-	/***************************************
-	 * 
-	 * ************************************/
-
 	obj << Begin();
 
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(0);
 
 	SDL_GL_MakeCurrent(window, context);
 
-	//load shaders
 	VShader vshader;
-	GShader gshader;
 	FShader fshader;
 
 	ShaderProgram program;
+
 	vshader << vshader_source;
-	gshader << gshader_source;
 	fshader << fshader_source;
 
-	program << vshader << gshader << fshader << link_these();
+	program << vshader << fshader << link_these();
 
-	Mesh3D cube;
-	MeshSample::Cube cubeHelper(1.0);
-	cube.copyData(cubeHelper.getVertex(), cubeHelper.getNormal(), cubeHelper.getTexcrd(), cubeHelper.getNumVertex());
+	VShader simple_vshader;
+	FShader simple_fshader;
+
+	ShaderProgram simple_program;
+	simple_vshader << simple_vshader_source;
+	simple_fshader << simple_fshader_source;
+
+	simple_program << simple_vshader << simple_fshader << link_these();
+
+	Texture<Texture2D> texture;
+	texture.texImage2D("texture.jpg");
+	texture.setParameter<Wrap_S<GL_REPEAT>, Wrap_T<GL_REPEAT>, Wrap_R<GL_REPEAT>, Mag_Filter<GL_NEAREST>, Min_Filter<GL_NEAREST>>();
+
+	GLfloat floor_vertex[][3] = 
+	{
+		{ 100.0f,  100.0f, 0.0f},
+		{-100.0f,  100.0f, 0.0f},
+		{-100.0f, -100.0f, 0.0f},
+		{ 100.0f, -100.0f, 0.0f}
+	};
+
+	const GLfloat floor_normal[][3] = 
+	{
+		{0.0f, 0.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f},
+		{0.0f, 0.0f, 1.0f}
+	};
+
+	const GLfloat floor_texcrd[][2] = 
+	{
+		{10.0f, 10.0f},
+		{0.0f, 10.0f},
+		{0.0f, 0.0f},
+		{10.0f, 0.0f}
+	};
+
+	const GLushort floor_index[] = 
+	{
+		0,1,2,0,2,3
+	};
+
+	Mesh3D floor_mesh;
+	floor_mesh.copyData(floor_vertex, floor_normal, floor_texcrd);
+	floor_mesh.copyIndex(floor_index);
+
+
+	Mesh3D sphere_mesh;
+	MeshSample::Sphere spherehelper(5.0, 50, 50);
+	sphere_mesh.copyData(spherehelper.getVertex(), spherehelper.getNormal(), spherehelper.getTexcrd(), spherehelper.getNumVertex());
+	sphere_mesh.setPos(glm::vec3(0.0f, 0.0f, 5.0f));
 
 	Camera camera;
-	camera.setPos(glm::vec3(3.0f, 3.0f, -2.0f));
-	camera.setDrct(glm::vec3(0.0f, 0.0f, 0.0f));
-	camera.setUp(glm::vec3(0.0f, 1.0f, 0.0f));
-	camera.setFar(10.0f);
+	camera.setPos(glm::vec3(-40.0f, -40.0f, 13.0f));
+	camera.setDrct(glm::vec3(50.0f, 50.0f, 0.0f));
+	camera.setAspect(1200, 800);
+	camera.setFar(1000.0f);
+	camera.setUp(glm::vec3(0.0f, 0.0f, 1.0f));
 
-	//window size
-	obj.connectAttrib(program, cube.getNormal(), cube.getVArray(), "norm");
-	obj.connectAttrib(program, cube.getVertex(), cube.getVArray(), "vertex");
-	obj.connectAttrib(program, cube.getTexcrd(), cube.getVArray(), "texcrd");
 
-	program.setUniformMatrixXtv("model", glm::value_ptr(cube.getModelMatrix()), 1, 4);
-	//program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
-	//program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
+	program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
+	program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
 
-	program.setUniformXt("light.ambient", 0.25f, 0.25f, 0.25f, 1.0f);
+	program.setUniformXt("light.ambient", 0.75f, 0.75f, 0.75f, 1.0f);
 	program.setUniformXt("light.diffuse", 1.0f, 1.0f, 1.0f, 1.0f);
 	program.setUniformXt("light.specular", 1.0f, 1.0f, 1.0f, 1.0f);
+	program.setUniformXt("light.position", -1.0f, -1.0f, 10.0f);
 
-	program.setUniformXt("material.ambient", 0.3f, 0.0f, 0.4f, 1.0f);
+	program.setUniformXt("material.ambient", 0.3f, 0.25f, 0.4f, 1.0f);
 	program.setUniformXt("material.diffuse", 0.75f, 0.0f, 1.0f, 1.0f);
 	program.setUniformXt("material.specular", 1.0f, 1.0f, 1.0f, 1.0f);
-	program.setUniformXt("material.shininess", 3.0f);
+	program.setUniformXt("material.shininess", 32.0f);
 
 	program.setUniformXt("attenuation.constant", 0.0f);
-	program.setUniformXt("attenuation.linear", 0.5f);
-	program.setUniformXt("attenuation.quadratic", 0.075f);
+	program.setUniformXt("attenuation.linear", 0.0f);
+	program.setUniformXt("attenuation.quadratic", 0.05f);
 
 	program.setUniformXt("textureobj", 0);
 
+	Texture<Texture2D> brick;
+	brick.texImage2D("texture.jpg");
+	brick.setParameter<Wrap_S<GL_REPEAT>, Wrap_T<GL_REPEAT>>();
+
+	RBO render;
+	render.storage<DepthComponent16>(512, 512);
+	Texture<Texture2D> canvas;
+	canvas.texImage2D(512, 512);
+	canvas.setParameter<Wrap_S<GL_REPEAT>, Wrap_T<GL_REPEAT>>();
+	FBO fbo;
+	fbo.attach<ColorAttachment<0>>(canvas);
+	fbo.attach<DepthAttachment>(render);
+
+	camera.setAspect(512, 512);
+	program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
+	program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
+
+	camera.setPos(glm::vec3(100.0f, 0.0f, 400.0f));
+	camera.setDrct(glm::vec3(-100.0f, 0.0f, 0.0f));
+	camera.setUp(glm::vec3(0.0f, 1.0f, 0.0f));
+	camera.setAspect(1200, 800);
+	simple_program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
+	simple_program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
+	simple_program.setUniformXt("textureobj", 0);
+
+	
 	FpsFix f(60.0);
 
-	//draw
-	volatile bool quit = false;
+
+	bool quit = false;
 	SDL_Event e;
-	while(!quit)
+	//	SDL_WaitThread(threadID, NULL);
+
+	while( !quit )
 	{
-		while(SDL_PollEvent(&e) != 0)
+		//Handle events on queue
+		while( SDL_PollEvent( &e ) != 0 )
 		{
-			if(e.type == SDL_QUIT)
+			//User requests quit
+			if( e.type == SDL_QUIT )
+			{
 				quit = true;
+			}
 		}
 
-		f.frameStart();
-
 		CHECK_GL_ERROR;
-		obj.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		f.frameStart();
+		
+		fbo.bind();
+		//be sure to call fbo.bind() before calling glClear~~!!
+		glViewport(0,0,512,512);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearDepth(1.0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
-		obj.clearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		program.setUniformXt("light.position", 0.6f, 0.6f, -0.6f);
-		int width, height;
-		SDL_GetWindowSize(window, &width, &height);
-		camera.setAspect(width, height);
-		program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
-		program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
-		obj.viewport(0, 0, width, height);
-		std::cout << "FPS: " << f.getFps() << std::endl;
+
+		std::cout << f.getFps() << std::endl;
 
 		if(f.isDrawable())
 		{
-			obj.draw(cube, program);
-			SDL_GL_SwapWindow(window);
+			obj.connectAttrib(program, floor_mesh, "vertex", "normal", "texcrd");
+			program.setUniformMatrixXtv("model", glm::value_ptr(floor_mesh.getModelMatrix()), 1, 4);
+			texture.bind(0);
+			obj.draw(floor_mesh, program);
+			texture.unbind();
+			obj.connectAttrib(program, sphere_mesh, "vertex", "normal", "texcrd");
+			program.setUniformMatrixXtv("model", glm::value_ptr(sphere_mesh.getModelMatrix()), 1, 4);
+			texture.bind(0);
+			obj.draw(sphere_mesh, program);
+			texture.unbind();
+			fbo.unbind();
+
+
+			glViewport(0,0,1200, 800);
+			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			glClearDepth(1.0);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_DEPTH_TEST);
+			obj.connectAttrib(simple_program, floor_mesh, "vertex", "normal", "texcrd");
+			simple_program.setUniformMatrixXtv("model", glm::value_ptr(floor_mesh.getModelMatrix()), 1, 4);
+			canvas.bind(0);
+			obj.draw(floor_mesh, simple_program);
+			canvas.unbind();
 		}
 
 		f.frameEnd();
+		
+		
+
+
+		SDL_GL_SwapWindow( window );
 	}
 
-
-
-	/*************************************
-	 * SDL desctuction
-	 * **********************************/
+	//	obj << End();
 
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-
-	/***************************************
-	 * 
-	 * ************************************/
-
 	return 0;
 }

@@ -45,9 +45,20 @@ namespace jikoLib{
 		 * while(true) //update and draw loop routine
 		 * {
 		 * 	f.frameStart();
-		 *    //update routine by cpu
+		 *    //update routine1 by cpu
 		 *    if(f.isDrawable())
-		 * 		//draw routine by gpu
+		 * 		//draw routine1 by gpu
+		 *
+		 *    //update routine2 by cpu
+		 *    if(f.isDrawable())
+		 * 		//draw routine2 by gpu
+		 *
+		 *    //update routine3 by cpu
+		 *    if(f.isDrawable())
+		 * 		//draw routine3 by gpu
+		 * 		
+		 * 	...
+		 *
 		 *    f.frameEnd();
 		 * }
 		 * 
@@ -107,7 +118,7 @@ namespace jikoLib{
 					}
 					sum_usec += current_usec;
 					get_fps_count++;
-					if(get_fps_count > fps_update_interval)
+					if(get_fps_count >= fps_update_interval)
 					{
 						get_fps_count = 0;
 						current_fps = fps_update_interval*1000000.0/sum_usec.count();
