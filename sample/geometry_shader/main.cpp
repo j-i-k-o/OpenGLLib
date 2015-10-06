@@ -26,19 +26,13 @@
  *******************************************************************************/
 
 #include "../include/gllib/gl_all.h"
+#include "../include/animlib/anim_all.h"
 #include <vector>
 #include <SDL2/SDL.h>
 #include <IL/ilu.h>
 #include <SDL2/SDL_opengl.h>
 
 jikoLib::GLLib::GLObject obj;
-
-int threadfunction(void* data)
-{
-	using namespace jikoLib::GLLib;
-
-	return 0;
-}
 
 const std::string vshader_source = 
 #include "geom.vert"
@@ -54,6 +48,7 @@ const std::string fshader_source =
 int main(int argc, char* argv[])
 {
 	using namespace jikoLib::GLLib;
+	using namespace jikoLib::AnimLib;
 
 
 	/*************************************
@@ -95,7 +90,7 @@ int main(int argc, char* argv[])
 
 	obj << Begin();
 
-	SDL_GL_SetSwapInterval(1);
+	SDL_GL_SetSwapInterval(0);
 
 	SDL_GL_MakeCurrent(window, context);
 
@@ -145,6 +140,8 @@ int main(int argc, char* argv[])
 
 	program.setUniformXt("textureobj", 0);
 
+	FpsFix fps(61, 1);
+
 	//draw
 	volatile bool quit = false;
 	SDL_Event e;
@@ -155,6 +152,11 @@ int main(int argc, char* argv[])
 			if(e.type == SDL_QUIT)
 				quit = true;
 		}
+
+		fps.frameStart();
+
+		std::cout << "FPS: " << fps.getFps() << std::endl;
+
 		CHECK_GL_ERROR;
 		obj.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable(GL_CULL_FACE);
@@ -167,8 +169,12 @@ int main(int argc, char* argv[])
 		program.setUniformMatrixXtv("view", glm::value_ptr(camera.getViewMatrix()), 1, 4);
 		program.setUniformMatrixXtv("projection", glm::value_ptr(camera.getProjectionMatrix()), 1, 4);
 		obj.viewport(0, 0, width, height);
-		obj.draw(cube, program);
+		if(fps.isDrawable())
+			obj.draw(cube, program);
+
 		SDL_GL_SwapWindow(window);
+
+		fps.frameEnd();
 	}
 
 
